@@ -1,0 +1,82 @@
+version: '3'
+
+######### Services ###################################
+
+services:
+  # Server container
+  nginx:
+    restart: always
+    build:
+      context: docker/dev/nginx
+      dockerfile: Dockerfile
+    volumes:
+      - ./:/var/www
+      - ./storage/logs/nginx:/var/log/nginx
+    ports:
+      # Nuxt port
+      # - 8080:80
+      # Laravel port
+      - 8080:80
+    depends_on:
+      - php
+    networks:
+      - laravel
+
+  # PHP FastCGI Process Manager container
+  php:
+    restart: always
+    build:
+      context: docker/dev/php
+      dockerfile: Dockerfile
+    volumes:
+      - ./:/var/www/api
+    environment:
+      # If you down want to use xDebug, set remote_enable=0
+      XDEBUG_CONFIG: "remote_enable=0"
+      PHP_IDE_CONFIG: "serverName=Docker"
+    depends_on:
+      - mysql
+    networks:
+      - laravel
+  
+
+  # Supervisor container (schedule and queue runner)
+  supervisor:
+    restart: always
+    build:
+      context: docker/dev/supervisor
+      dockerfile: Dockerfile
+    volumes:
+      - ./:/var/www/
+      - ./docker/dev/supervisor/conf.d:/etc/supervisor/conf.d
+      - ./storage/logs/supervisor:/var/log
+    depends_on:
+      - php
+
+  # database container
+  mysql:
+    image: mysql:5.7.22
+    restart: always
+    environment:
+      # MYSQL_ROOT_PASSWORD: ''
+      MYSQL_DATABASE: 'tmpay'
+      MYSQL_USER: 'root'
+      MYSQL_PASSWORD: ''
+      MYSQL_ALLOW_EMPTY_PASSWORD: 'yes'
+    volumes:
+      - ./storage/dbdata:/var/lib/mysql
+    ports:
+      - 33066:3306
+    networks:
+      - laravel
+
+######### Volumes ###################################
+volumes:
+  database:
+    driver: local
+
+######### Networks ###################################
+networks:
+  laravel:
+    name: laravel
+    

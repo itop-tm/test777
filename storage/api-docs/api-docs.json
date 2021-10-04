@@ -1,0 +1,801 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "TPayments API Documentation",
+        "description": "Swagger doc for tpayments",
+        "license": {
+            "name": "Apache 2.0",
+            "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+        },
+        "version": "1.0.0"
+    },
+    "servers": [
+        {
+            "url": "http://turkmenpost.loc/api/v1/",
+            "description": "TPayments API Server"
+        }
+    ],
+    "paths": {
+        "/client/payments/{ref_uuid}": {
+            "get": {
+                "tags": [
+                    "Payments"
+                ],
+                "summary": "Fetch a payment by ref_uuid",
+                "parameters": [
+                    {
+                        "name": "ref_uuid",
+                        "in": "query",
+                        "description": "ref_uuid of the payment",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "404": {
+                        "description": "MODEL_NOT_FOUND",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "200": {
+                        "description": "ok",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/PaymentModel"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
+        },
+        "/payments/gts": {
+            "get": {
+                "tags": [
+                    "GTS"
+                ],
+                "summary": "Get balance of gts user",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#components/schemas/GTSGetBalanceRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "406": {
+                        "description": "Validation error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "200": {
+                        "description": "result",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "title": "status",
+                                            "description": "result status",
+                                            "type": "boolean"
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "balance": {
+                                                    "title": "balance",
+                                                    "description": "balance of gts user",
+                                                    "type": "integer",
+                                                    "example": "11.24"
+                                                },
+                                                "agreement_number": {
+                                                    "title": "agreement_number",
+                                                    "description": "agreement_number of this user, you should use this number in top up balance request",
+                                                    "type": "integer",
+                                                    "example": "inet-332233"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "GTS"
+                ],
+                "summary": "Create a new GTS payment",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#components/schemas/GTSPaymentCreateRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "406": {
+                        "description": "Validation error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "200": {
+                        "description": "result",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "title": "status",
+                                            "description": "result status",
+                                            "type": "boolean"
+                                        },
+                                        "data": {
+                                            "title": "data",
+                                            "description": "Created payment data",
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/PaymentModel"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
+        },
+        "client/payments": {
+            "get": {
+                "tags": [
+                    "Payments"
+                ],
+                "summary": "Display a listing of payments",
+                "operationId": "PaymentsList",
+                "parameters": [
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "description": "The page number",
+                        "required": false,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of payments created by client",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "title": "Data",
+                                            "description": "list of entity",
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/PaymentModel"
+                                            }
+                                        },
+                                        "meta": {
+                                            "$ref": "#/components/schemas/PaginatorMeta"
+                                        },
+                                        "links": {
+                                            "$ref": "#/components/schemas/PaginatorLinks"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
+        },
+        "/payments/telecom": {
+            "get": {
+                "tags": [
+                    "TELECOM"
+                ],
+                "summary": "Get payable status of telecom user",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#components/schemas/TelecomCheckRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "406": {
+                        "description": "Validation error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "200": {
+                        "description": "result",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "title": "status",
+                                            "description": "request result status",
+                                            "type": "boolean"
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "result": {
+                                                    "title": "result",
+                                                    "description": "true if phone number can be payed",
+                                                    "type": "boolean",
+                                                    "example": "false"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "TELECOM"
+                ],
+                "summary": "Create a new telecom payment",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#components/schemas/TelecomPaymentCreateRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "406": {
+                        "description": "Validation error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "200": {
+                        "description": "result",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "title": "status",
+                                            "description": "result status",
+                                            "type": "boolean"
+                                        },
+                                        "data": {
+                                            "title": "data",
+                                            "description": "Created payment data",
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/PaymentModel"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
+        },
+        "/payments/tmcell": {
+            "post": {
+                "tags": [
+                    "TMCELL"
+                ],
+                "summary": "Create a new tmcel payment",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#components/schemas/TmcellPaymentCreateRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "406": {
+                        "description": "Validation error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "200": {
+                        "description": "result",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "title": "status",
+                                            "description": "result status",
+                                            "type": "boolean"
+                                        },
+                                        "data": {
+                                            "title": "data",
+                                            "description": "Created payment data",
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/PaymentModel"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "GTSPaymentCreateRequest": {
+                "title": "GTSPaymentCreateRequest",
+                "description": "create gts payment request body data",
+                "required": [
+                    "money_amount",
+                    "agreement_number",
+                    "type"
+                ],
+                "properties": {
+                    "money_amount": {
+                        "title": "money_amount",
+                        "description": "Amount of money, 120 is 1.20 manat",
+                        "type": "integer",
+                        "example": "100"
+                    },
+                    "agreement_number": {
+                        "title": "agreement_number",
+                        "description": "Get agreement_number from get balance request",
+                        "type": "integer",
+                        "format": "int64",
+                        "example": "323222"
+                    },
+                    "type": {
+                        "title": "type",
+                        "description": "Type of gts service",
+                        "type": "string",
+                        "enum": [
+                            "phone",
+                            "inet",
+                            "iptv"
+                        ],
+                        "example": "inet"
+                    },
+                    "method": {
+                        "$ref": "#/components/schemas/PaymentMethod"
+                    }
+                },
+                "type": "object"
+            },
+            "GTSGetBalanceRequest": {
+                "title": "GTSGetBalanceRequest",
+                "description": "gts get balance request body data",
+                "required": [
+                    "phone_number",
+                    "type"
+                ],
+                "properties": {
+                    "phone_number": {
+                        "title": "phone_number",
+                        "description": "Phone number",
+                        "type": "integer",
+                        "format": "int64",
+                        "example": "461699"
+                    },
+                    "type": {
+                        "title": "type",
+                        "description": "Type of gts service",
+                        "type": "string",
+                        "enum": [
+                            "phone",
+                            "inet",
+                            "iptv"
+                        ],
+                        "example": "inet"
+                    }
+                },
+                "type": "object"
+            },
+            "TelecomCheckRequest": {
+                "title": "TelecomCheckRequest",
+                "description": "Telecom check request body data",
+                "required": [
+                    "money_amount",
+                    "account"
+                ],
+                "properties": {
+                    "money_amount": {
+                        "title": "money_amount",
+                        "description": "Amount of money, 120 is 1.20 manat",
+                        "type": "integer",
+                        "example": "100"
+                    },
+                    "account": {
+                        "title": "account",
+                        "description": "account number to check",
+                        "type": "integer",
+                        "format": "int64",
+                        "example": "461699"
+                    }
+                },
+                "type": "object"
+            },
+            "TelecomPaymentCreateRequest": {
+                "title": "TelecomPaymentCreateRequest",
+                "description": "create telecom payment request body data",
+                "required": [
+                    "money_amount",
+                    "account"
+                ],
+                "properties": {
+                    "money_amount": {
+                        "title": "money_amount",
+                        "description": "Amount of money, 120 is 1.20 manat",
+                        "type": "integer",
+                        "example": "100"
+                    },
+                    "account": {
+                        "title": "account",
+                        "description": "Destination account number",
+                        "type": "integer",
+                        "format": "int64",
+                        "example": "461699"
+                    },
+                    "method": {
+                        "$ref": "#/components/schemas/PaymentMethod"
+                    }
+                },
+                "type": "object"
+            },
+            "TmcellPaymentCreateRequest": {
+                "title": "TmcellPaymentCreateRequest",
+                "description": "create tmcell payment request body data",
+                "required": [
+                    "money_amount",
+                    "phone_number"
+                ],
+                "properties": {
+                    "money_amount": {
+                        "title": "money_amount",
+                        "description": "Amount of money, 120 is 1.20 manat",
+                        "type": "integer",
+                        "example": "100"
+                    },
+                    "phone_number": {
+                        "title": "phone_number",
+                        "description": "Destination phone number",
+                        "type": "integer",
+                        "format": "int64",
+                        "example": "62615986"
+                    },
+                    "method": {
+                        "$ref": "#/components/schemas/PaymentMethod"
+                    }
+                },
+                "type": "object"
+            },
+            "PaginatorLinks": {
+                "title": "PaginatorLinks",
+                "description": "Pagination links",
+                "properties": {
+                    "first": {
+                        "description": "first page",
+                        "type": "string",
+                        "example": "http://tmpay.loc/api/v1/payments?page=1"
+                    },
+                    "last": {
+                        "description": "from",
+                        "type": "string",
+                        "example": "http://tmpay.loc/api/v1/payments?page=10"
+                    },
+                    "prev": {
+                        "description": "prev page",
+                        "type": "string",
+                        "example": "http://tmpay.loc/api/v1/payments?page=2"
+                    },
+                    "next": {
+                        "description": "next page",
+                        "type": "string",
+                        "example": "http://tmpay.loc/api/v1/payments?page=1"
+                    }
+                },
+                "type": "object"
+            },
+            "PaginatorMeta": {
+                "title": "PaginatorMeta",
+                "description": "Pagination meta data",
+                "properties": {
+                    "current_page": {
+                        "description": "current page",
+                        "type": "integer",
+                        "example": "2"
+                    },
+                    "from": {
+                        "description": "from",
+                        "type": "integer",
+                        "example": "1"
+                    },
+                    "last_page": {
+                        "description": "last page",
+                        "type": "integer",
+                        "example": "10"
+                    },
+                    "per_page": {
+                        "description": "Per page",
+                        "type": "integer",
+                        "example": "10"
+                    },
+                    "to": {
+                        "description": "Per page",
+                        "type": "integer",
+                        "example": "10"
+                    },
+                    "total": {
+                        "description": "Total page",
+                        "type": "integer",
+                        "example": "10"
+                    }
+                },
+                "type": "object"
+            },
+            "ErrorResponse": {
+                "title": "ErrorResponse",
+                "description": "Error response data",
+                "properties": {
+                    "success": {
+                        "description": "request status",
+                        "type": "boolean",
+                        "example": "false"
+                    },
+                    "error": {
+                        "description": "error constant",
+                        "type": "string",
+                        "example": "ALREADY_EXISTS"
+                    },
+                    "message": {
+                        "description": "description of error",
+                        "type": "string",
+                        "example": "resource already exists"
+                    },
+                    "code": {
+                        "description": "HTTP error code",
+                        "type": "integer",
+                        "example": "409"
+                    }
+                },
+                "type": "object"
+            },
+            "PaymentMethod": {
+                "title": "PaymentMethod",
+                "description": "Used method for payment",
+                "type": "string",
+                "enum": [
+                    "CARD"
+                ],
+                "example": "CARD"
+            },
+            "PaymentState": {
+                "title": "PaymentState",
+                "description": "Main state of payment",
+                "type": "string",
+                "enum": [
+                    "CREATED",
+                    "PENDING",
+                    "SUCCESS",
+                    "FAILED"
+                ],
+                "example": "ORDERED"
+            },
+            "PaymentModel": {
+                "title": "PaymentModel",
+                "description": "Payment model",
+                "properties": {
+                    "id": {
+                        "title": "id",
+                        "description": "The internal ID of this payment",
+                        "type": "integer",
+                        "format": "int64",
+                        "example": "1443"
+                    },
+                    "uuid": {
+                        "title": "uuid",
+                        "description": "The internal UUID of this payment",
+                        "type": "string",
+                        "format": "uuid",
+                        "example": "94387003-b27d-4e20-b157-b35079230580"
+                    },
+                    "ref_uuid": {
+                        "title": "ref_uuid",
+                        "description": "reference uuid provided by client",
+                        "type": "string",
+                        "format": "uuid",
+                        "example": "94387003-b27d-4e20-b157-b35079230580"
+                    },
+                    "client_id": {
+                        "title": "client_id",
+                        "description": "Creator identifier of the payment ",
+                        "type": "integer",
+                        "format": "int64",
+                        "example": "1"
+                    },
+                    "state": {
+                        "$ref": "#/components/schemas/PaymentState"
+                    },
+                    "method": {
+                        "$ref": "#/components/schemas/PaymentMethod"
+                    },
+                    "service": {
+                        "$ref": "#/components/schemas/ServicesEnum"
+                    },
+                    "type": {
+                        "$ref": "#/components/schemas/ServicesTypeEnum"
+                    },
+                    "amount": {
+                        "title": "Amount",
+                        "description": "The amount of payment in cents",
+                        "type": "integer",
+                        "format": "int64",
+                        "example": "12000"
+                    },
+                    "created_at": {
+                        "title": "RFC3339",
+                        "description": "Created datetime of payment",
+                        "type": "date-time",
+                        "example": "2020-05-11T07:35:49.00Z"
+                    },
+                    "updated_at": {
+                        "title": "RFC3339",
+                        "description": "Updated datetime of payment",
+                        "type": "date-time",
+                        "example": "2020-05-11T07:35:49.00Z"
+                    },
+                    "completed_at": {
+                        "title": "RFC3339",
+                        "description": "Payment completed date-time",
+                        "type": "date-time",
+                        "example": "2020-05-11T07:35:49.00Z"
+                    }
+                },
+                "type": "object"
+            },
+            "ServicesEnum": {
+                "title": "ServicesEnum",
+                "description": "Service types",
+                "type": "string",
+                "enum": [
+                    "GTS",
+                    "TELECOM",
+                    "TMCELL"
+                ],
+                "example": "GTS"
+            },
+            "ServicesTypeEnum": {
+                "title": "ServicesTypeEnum",
+                "description": "Service subtypes",
+                "type": "string",
+                "enum": [
+                    "GTS_INET",
+                    "GTS_PHONE",
+                    "GTS_IPTV",
+                    "TELC_INET",
+                    "TMCELL_PHONE"
+                ],
+                "example": "GTS_INET"
+            }
+        },
+        "securitySchemes": {
+            "bearer_token": {
+                "type": "apiKey",
+                "description": "Enter token in format (Bearer <token>)",
+                "name": "Authorization",
+                "in": "header"
+            }
+        }
+    },
+    "security": [
+        []
+    ]
+}

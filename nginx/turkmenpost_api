@@ -1,0 +1,22 @@
+server {
+        listen 80;
+        root /var/www/turkmenpost_payments/public;
+        index index.php index.html index.htm index.nginx-debian.html;
+
+        server_name 95.85.114.18 www.95.85.114.18;
+
+        location / {
+         try_files $uri $uri/ /index.php?$query_string;
+        }
+
+        location ~ \.php$ {
+                include snippets/fastcgi-php.conf;
+                fastcgi_pass unix:/var/run/php/php7.4-fpm.sock;
+        }
+
+        location ~ /\.ht {
+                deny all;
+        }
+
+        client_max_body_size 100M;
+}
